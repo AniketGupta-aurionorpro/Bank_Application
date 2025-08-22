@@ -1,0 +1,21 @@
+<Context>
+
+    <Resource name="jdbc/mydb"
+              auth="Container"
+              type="javax.sql.DataSource"
+              maxTotal="20"
+              maxIdle="10"
+              maxWaitMillis="10000"
+              username="root"
+              password="Gengar@456"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/bank_app?useSSL=false" />
+
+    <!-- Define a resource for JNDI lookups -->
+    <Resource name="myResource"
+              auth="Container"
+              type="java.lang.String"
+              value="This is a sample resource" />
+
+    <!-- Additional configuration can be added here -->
+</Context>
