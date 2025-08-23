@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpSession;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Map;
 
 @WebServlet("/login")
 public class LoginController extends HttpServlet {
@@ -41,14 +40,15 @@ public class LoginController extends HttpServlet {
                 session.setAttribute("username", user.getUsername());
                 session.setAttribute("role", user.getRole().toLowerCase());
                 session.setMaxInactiveInterval(900);
-
                 System.out.println("Admin Logged In Successfully");
+                resp.sendRedirect("admin/dashboard");
             }
             else if(user.getRole().equals(Roles.CUSTOMER.toString())){
                 session.setAttribute("username", user.getUsername());
                 session.setAttribute("role", user.getRole().toLowerCase());
                 session.setMaxInactiveInterval(1800);
                 System.out.println("Customer Logged In Successfully");
+                resp.sendRedirect("customer/home");
             }
         }else {
             req.setAttribute("GLOBAL_ERROR", "Invalid Credentials");

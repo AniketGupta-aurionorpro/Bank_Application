@@ -1,11 +1,9 @@
 package com.aurionpro.bank_application.Services;
 
-import com.aurionpro.bank_application.DAO.LoginDAOImpl;
-import com.aurionpro.bank_application.ENUMS.Roles;
-import com.aurionpro.bank_application.Interfaces.LoginDAO;
+import com.aurionpro.bank_application.DAO.UserDAOImpl;
+import com.aurionpro.bank_application.Interfaces.UsersDAO;
 import com.aurionpro.bank_application.Models.User;
 import com.aurionpro.bank_application.Util.EncryptionUtil;
-import jakarta.annotation.Resource;
 
 import javax.sql.DataSource;
 
@@ -13,18 +11,18 @@ public class LoginService {
     String username;
     String password;
     EncryptionUtil encryptionUtil;
-    LoginDAO loginDAO;
+    UsersDAO usersDAO;
     User user;
 
     public LoginService(DataSource dataSource) {
         encryptionUtil = new EncryptionUtil();
         user = new User();
-        loginDAO = new LoginDAOImpl(dataSource);
+        usersDAO = new UserDAOImpl(dataSource);
     }
     public User login(String username, String password) {
         this.username = username;
         this.password = password;
-        user = loginDAO.getUserByUsername(username);
+        user = usersDAO.getUserByUsername(username);
         if (user != null) {
             if (encryptionUtil.checkPassword(password, user.getPassword())) {
                 return user;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/src/main/java/com/aurionpro/bank_application/DAO/LoginDAOImpl.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/aurionpro/bank_application/DAO/UserDAOImpl.java" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/Bank_APP.sql" dialect="MySQL" />
   </component>
 </project>
