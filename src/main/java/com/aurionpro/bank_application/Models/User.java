@@ -5,8 +5,7 @@ import com.aurionpro.bank_application.ENUMS.STATUS;
 
 import java.time.LocalDateTime;
 
-public class Users  {
-   private static final long serialVersionUID = 1L;
+public class User {
    private int id;
 private int accountNumber;
 private String username;
@@ -18,8 +17,9 @@ private long balance;
 private LocalDateTime created_at;
 private String status;
 private boolean is_deleted;
-   public Users(int accountNumber, String username, String password, String email, String phone, Roles role, long balance,
-                LocalDateTime created_at, STATUS status, boolean is_deleted){
+    public User() {}
+   public User(int accountNumber, String username, String password, String email, String phone, Roles role, long balance,
+               LocalDateTime created_at, STATUS status, boolean is_deleted){
          this.accountNumber = accountNumber;
             this.username = username;
             this.password = password;
@@ -32,8 +32,8 @@ private boolean is_deleted;
             this.is_deleted = is_deleted;
    }
 
-    public Users(int id, int accountNumber, String username, String password, String email, String phone, Roles role, long balance,
-                 LocalDateTime created_at, STATUS status, boolean is_deleted){
+    public User(int id, int accountNumber, String username, String password, String email, String phone, Roles role, long balance,
+                LocalDateTime created_at, STATUS status, boolean is_deleted){
             this.id = id;
             this.accountNumber = accountNumber;
                 this.username = username;
