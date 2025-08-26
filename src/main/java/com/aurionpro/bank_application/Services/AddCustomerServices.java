@@ -4,6 +4,9 @@ import com.aurionpro.bank_application.DAO.UserDAOImpl;
 import com.aurionpro.bank_application.Interfaces.UsersDAO;
 import com.aurionpro.bank_application.Models.User;
 import com.aurionpro.bank_application.Util.EncryptionUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import javax.sql.DataSource;
 import java.util.Random;
@@ -18,7 +21,7 @@ public class AddCustomerServices {
     }
 
 
-    public User addCustomer(User newUser) throws Exception {
+    public boolean addCustomer(User newUser) throws Exception {
         EncryptionUtil encryptionUtil = new EncryptionUtil();
 
         String hashedPassword = encryptionUtil.hashPassword(newUser.getPassword());
@@ -34,7 +37,7 @@ public class AddCustomerServices {
         boolean success = userDAO.createUser(newUser);
 
         if (success) {
-            return newUser;
+            return true;
         } else {
             throw new Exception("Failed to create customer in the database.");
         }

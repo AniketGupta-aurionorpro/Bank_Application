@@ -160,7 +160,11 @@
     </style>
 </head>
 <body>
-
+<c:if test="${not empty successMessage}">
+    <div class="alert alert-info text-center m-0" role="alert">
+        <c:out value="${successMessage}"/>
+    </div>
+</c:if>
 <div class="wrapper">
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
@@ -228,6 +232,7 @@
                             <th>Name</th>
                             <th>Balance</th>
                             <th>Status</th>
+                            <th>Account Number</th>
                             <th class="text-center">Actions</th>
                         </tr>
                         </thead>
@@ -235,10 +240,19 @@
                         <c:forEach var="customer" items="${customerList}">
                             <tr>
                                 <td><c:out value="${customer.username}"/></td>
-                                <td>₹<c:out value="${customer.balance / 100.0}"/></td>
+                                <td><c:choose>
+                                    <%-- If balance is 0, show a muted dash --%>
+                                    <c:when test="${customer.balance == 0}">
+                                        <span class="text-muted">--</span>
+                                    </c:when>
+                                    <%-- Otherwise, show the formatted balance --%>
+                                    <c:otherwise>
+                                        ₹<c:out value="${customer.balance / 100.0}"/>
+                                    </c:otherwise>
+                                </c:choose></td>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${customer.deleted}">
+                                        <c:when test="${customer.is_deleted}">
                                             <span class="badge bg-danger">Inactive</span>
                                         </c:when>
                                         <c:otherwise>
@@ -246,12 +260,17 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
+                                <td><c:out value="${customer.accountNumber}"/></td>
                                 <td class="text-center">
-                                    <a href="${pageContext.request.contextPath}/admin?action=showEdit&id=${customer.userId}"
+                                    <a href="${pageContext.request.contextPath}/admin?action=viewTransactions&id=${customer.id}"
+                                       class="btn btn-sm btn-outline-info me-2">
+                                        <i class="bi bi-card-list"></i> History
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/admin?action=showEdit&id=${customer.id}"
                                        class="btn btn-sm btn-outline-primary me-2">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/admin?action=delete&id=${customer.userId}"
+                                    <a href="${pageContext.request.contextPath}/admin?action=delete&id=${customer.id}"
                                        class="btn btn-sm btn-outline-danger"
                                        onclick="return confirm('Are you sure you want to deactivate this user account?')">
                                         <i class="bi bi-trash"></i> Delete
