@@ -115,7 +115,6 @@
     </style>
 </head>
 <body>
-
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
@@ -123,7 +122,7 @@
         <div class="d-flex ms-auto">
             <!-- Using <a> tags styled as buttons is better for navigation -->
             <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-primary me-2">Login</a>
-            <a href="${pageContext.request.contextPath}/add-customer" class="btn btn-primary">Register</a>
+<%--            <a href="${pageContext.request.contextPath}/add-customer" class="btn btn-primary">Register</a>--%>
         </div>
     </div>
 </nav>
@@ -139,7 +138,7 @@
                 </p>
                 <div class="d-flex flex-wrap gap-2">
                     <a href="${pageContext.request.contextPath}/login" class="btn btn-primary">Access Your Account</a>
-                    <a href="${pageContext.request.contextPath}/add-customer" class="btn btn-outline-primary">Become a Customer</a>
+<%--                    <a href="${pageContext.request.contextPath}/add-customer" class="btn btn-outline-primary">Become a Customer</a>--%>
                 </div>
             </div>
             <div class="col-lg-6 text-center">

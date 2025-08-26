@@ -1,5 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%--<%--%>
+<%--    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1--%>
+<%--    response.setHeader("Pragma", "no-cache"); // HTTP 1.0--%>
+<%--    response.setDateHeader("Expires", 0); // Proxies--%>
+<%--%>--%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,7 +104,6 @@
     </style>
 </head>
 <body>
-
 <div class="login-container">
     <div class="login-card">
         <div class="login-card-header text-center">
@@ -108,14 +112,14 @@
         </div>
         <div class="login-card-body">
 
-            <%-- Global error message for failed login attempts --%>
+
             <c:if test="${not empty GLOBAL_ERROR}">
                 <div class="alert alert-danger" role="alert">
                         ${GLOBAL_ERROR}
                 </div>
             </c:if>
 
-            <%-- The action should point to your Login Servlet --%>
+
             <form method="post" action="${pageContext.request.contextPath}/login" novalidate>
 
                 <div class="mb-3">
@@ -145,7 +149,7 @@
 </div>
 
 <script>
-    // Automatically focus the first field with an error, or the username field by default.
+
     (function () {
         const hasUsernameError = ${not empty ERRORS.username};
         const hasPasswordError = ${not empty ERRORS.password};
@@ -155,7 +159,7 @@
         } else if (hasPasswordError) {
             document.getElementById('password').focus();
         } else {
-            // If no errors, focus username field for better UX
+
             document.getElementById('username').focus();
         }
     })();

@@ -9,12 +9,7 @@ public class EncryptionUtil {
     }
 
     public boolean checkPassword(String password, String hashed) {
-        if (password == null || hashed == null) return false;
-        try {
-            return BCrypt.checkpw(password, hashed);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return BCrypt.checkpw(password, hashed);
     }
 
 //    public static void main(String[] args) {

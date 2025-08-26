@@ -29,9 +29,15 @@
         /* --- Sidebar --- */
         .sidebar {
             width: 260px;
+            min-width: 260px; /* Prevent sidebar from shrinking */
             background-color: #2c3e50; /* Dark blue-gray */
             color: #ecf0f1;
-            transition: all 0.3s;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        /* Collapsed state for the sidebar */
+        .sidebar.collapsed {
+            margin-left: -260px;
         }
 
         .sidebar-header {
@@ -88,6 +94,8 @@
         .main-content {
             flex-grow: 1;
             padding: 30px;
+            transition: all 0.3s ease-in-out;
+            overflow-x: hidden; /* Prevent horizontal scroll on resize */
         }
 
         .main-header {
@@ -104,6 +112,20 @@
 
         .admin-profile {
             font-weight: 500;
+        }
+
+        /* Sidebar Toggle Button */
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         /* Card for table */
@@ -141,32 +163,35 @@
 
 <div class="wrapper">
     <!-- Sidebar -->
-    <nav class="sidebar">
+    <nav id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <h3>Aurionpro Bank</h3>
         </div>
 
         <ul class="sidebar-nav">
             <li>
-                <%-- The 'active' class highlights the current page --%>
-                <a href="${pageContext.request.contextPath}/adminDashboard" class="active">
+                <a href="${pageContext.request.contextPath}/admin/dashboard" class="active">
                     <i class="bi bi-grid-1x2-fill"></i> Dashboard
                 </a>
             </li>
             <li>
-                <a href="${pageContext.request.contextPath}/admin?action=showAddCustomer">
+                <a href="${pageContext.request.contextPath}/addCustomer">
                     <i class="bi bi-person-plus-fill"></i> Add Customer
                 </a>
             </li>
-            <li>
-                <a href="${pageContext.request.contextPath}/admin?action=showPending">
-                    <i class="bi bi-bell-fill"></i> Notifications
-                    <%-- This can be made dynamic later to show a count --%>
-                    <span class="badge rounded-pill bg-danger">3</span>
+<%--            <li>--%>
+<%--                <a href="${pageContext.request.contextPath}/admin?action=showPending">--%>
+<%--                    <i class="bi bi-bell-fill"></i> Notifications--%>
+<%--                    <span class="badge rounded-pill bg-danger">3</span>--%>
+<%--                </a>--%>
+<%--            </li>--%>
+            <li> <%-- NEW: View All Transactions link --%>
+                <a href="${pageContext.request.contextPath}/admin?action=viewAllTransactions">
+                    <i class="bi bi-receipt-cutoff"></i> View All Transactions
                 </a>
             </li>
             <li>
-                <a href="${pageContext.request.contextPath}/logout">
+                <a href="${pageContext.request.contextPath}/logoutServlet">
                     <i class="bi bi-box-arrow-left"></i> Logout
                 </a>
             </li>
@@ -176,11 +201,18 @@
     <!-- Main Page Content -->
     <main class="main-content">
         <header class="main-header">
-            <h1>Dashboard</h1>
+            <div class="header-left">
+                <%-- Sidebar Toggle Button --%>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h1>Dashboard</h1>
+            </div>
+
             <div class="admin-profile">
                 <i class="bi bi-person-circle"></i>
-                <%-- Assumes the 'user' object with a 'username' property is in the session --%>
-                Welcome, <c:out value="${sessionScope.user.username}"/>
+                <%-- CORRECTED: Access username property from the user object --%>
+                Welcome, <c:out value="${sessionScope.username}"/>
             </div>
         </header>
 
@@ -200,17 +232,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <%--
-                            The servlet should set a request attribute "customerList"
-                            containing a List of User objects.
-                        --%>
                         <c:forEach var="customer" items="${customerList}">
                             <tr>
                                 <td><c:out value="${customer.username}"/></td>
-
-                                    <%-- The balance is stored in paise/cents, so divide by 100 for display --%>
                                 <td>₹<c:out value="${customer.balance / 100.0}"/></td>
-
                                 <td>
                                     <c:choose>
                                         <c:when test="${customer.deleted}">
@@ -221,18 +246,14 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-
                                 <td class="text-center">
-                                        <%-- Edit button links to the servlet with an action and the user_id --%>
                                     <a href="${pageContext.request.contextPath}/admin?action=showEdit&id=${customer.userId}"
                                        class="btn btn-sm btn-outline-primary me-2">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>
-
-                                        <%-- Delete button links to the servlet but has a JS confirmation --%>
                                     <a href="${pageContext.request.contextPath}/admin?action=delete&id=${customer.userId}"
                                        class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Are you sure you want to deactivate this user account? This action cannot be undone.')">
+                                       onclick="return confirm('Are you sure you want to deactivate this user account?')">
                                         <i class="bi bi-trash"></i> Delete
                                     </a>
                                 </td>
@@ -249,5 +270,20 @@
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS for sidebar toggle -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleButton = document.getElementById('sidebar-toggle');
+
+        if (toggleButton) {
+            toggleButton.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

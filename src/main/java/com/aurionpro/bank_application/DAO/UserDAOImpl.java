@@ -201,4 +201,56 @@ public class UserDAOImpl implements UsersDAO {
         }
         return users;
     }
+
+
+    @Override
+    public boolean isEmailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, email);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthenticationException("Error checking if email exists");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isPhoneExists(String phone) {
+        String sql = "SELECT COUNT(*) FROM users WHERE phone = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, phone);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthenticationException("Error checking if phone exists");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNumberExists(int accountNumber) {
+        String sql = "SELECT COUNT(*) FROM users WHERE account_number = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, accountNumber);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthenticationException("Error checking if account number exists");
+        }
+        return false;
+    }
 }

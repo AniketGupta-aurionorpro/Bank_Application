@@ -15,4 +15,7 @@ public interface UsersDAO {
     public User getUserByAccountNumber(int accountNumber);
     public boolean isUsernameExists(String username);
     public List<User> getUserByRole(String email);
+    boolean isEmailExists(String email);
+    boolean isPhoneExists(String phone);
+    boolean isAccountNumberExists(int accountNumber);
 }
