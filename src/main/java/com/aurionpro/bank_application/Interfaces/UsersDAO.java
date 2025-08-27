@@ -18,4 +18,6 @@ public interface UsersDAO {
     boolean isEmailExists(String email);
     boolean isPhoneExists(String phone);
     boolean isAccountNumberExists(int accountNumber);
+    List<User> getUserByRole1(String role);
+    User getUserById(int id);
 }

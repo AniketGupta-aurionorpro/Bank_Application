@@ -53,6 +53,9 @@ public class AdminController extends HttpServlet {
         }
 
         switch (action) {
+            case "showEdit":
+                showEditCustomerForm(req, resp);
+                break;
             case "delete":
                 deleteCustomer(req, resp);
                 break;
@@ -114,12 +117,96 @@ public class AdminController extends HttpServlet {
         // RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AllTransactions.jsp");
         // dispatcher.forward(req, resp);
 
-        resp.getWriter().println("<h1>Page for 'View All Transactions' is under construction.</h1>");
+//        resp.getWriter().println("<h1>Page for 'View All Transactions' is under construction.</h1>");
+    }
+
+    private void showEditCustomerForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            int userId = Integer.parseInt(req.getParameter("id"));
+            User customer = adminServices.getCustomerById(userId); // You'll need this method in AdminServices
+
+            if (customer == null) {
+                resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=CustomerNotFound");
+                return;
+            }
+
+            req.setAttribute("customer", customer);
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/EditCustomerForm.jsp"); // Create this JSP
+            dispatcher.forward(req, resp);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=InvalidCustomerId");
+        }
     }
 
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
+        String action = request.getParameter("action");
+
+        if (action == null) {
+            action = "LIST_CUSTOMERS"; // Default action
+        }
+
+        switch (action) {
+            case "update": // New case for updating customer
+                updateCustomer(request, response);
+                break;
+            // Other POST actions if any, otherwise default to doGet for other actions
+            default:
+                doGet(request, response); // Or handle other POST requests
+        }
     }
+
+    private void updateCustomer(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        try {
+            int userId = Integer.parseInt(req.getParameter("id"));
+            String username = req.getParameter("username");
+            String email = req.getParameter("email");
+            String phone = req.getParameter("phone");
+            String dob = req.getParameter("dob"); // Assuming DOB is part of your User model
+            String status = req.getParameter("status"); // "active" or "inactive" from toggle
+
+            // Retrieve existing user to preserve other fields
+            User existingUser = adminServices.getCustomerById(userId);
+
+            if (existingUser == null) {
+                resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=CustomerNotFound");
+                return;
+            }
+
+            // Update only the editable fields
+            existingUser.setUsername(username);
+            existingUser.setEmail(email);
+            existingUser.setPhone(phone);
+            // existingUser.setDob(LocalDate.parse(dob)); // Uncomment if you add DOB to User model
+            if (status != null && status.equals("active")){
+                existingUser.setIs_deleted(false);
+            }else{
+                existingUser.setIs_deleted(true);
+            }
+
+            boolean success = adminServices.updateCustomer(existingUser); // New method in AdminServices
+
+            if (success) {
+                resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=CustomerUpdated");
+            } else {
+                req.setAttribute("customer", existingUser); // Keep data in form for re-display
+                req.setAttribute("errorMessage", "Failed to update customer.");
+                RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/EditCustomerForm.jsp");
+                dispatcher.forward(req, resp);
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=InvalidCustomerId");
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.setAttribute("errorMessage", "An error occurred during update: " + e.getMessage());
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/EditCustomerForm.jsp");
+            dispatcher.forward(req, resp);
+        }
+    }
+
 }

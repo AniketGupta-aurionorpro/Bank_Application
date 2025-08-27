@@ -192,7 +192,7 @@ public class UserDAOImpl implements UsersDAO {
             preparedStatement.setString(1, role);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+                while(resultSet.next()) {
                     users.add(mapRowToUser(resultSet));
                 }
             }
@@ -202,6 +202,41 @@ public class UserDAOImpl implements UsersDAO {
         return users;
     }
 
+    @Override
+    public List<User> getUserByRole1(String role) {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT * FROM users WHERE role = ? ";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, role);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while(resultSet.next()) {
+                    users.add(mapRowToUser(resultSet));
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthenticationException("Not able to fetch data"); // Or use a logger
+        }
+        return users;
+    }
+
+    @Override
+    public User getUserById(int id) {
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return mapRowToUser(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new AuthenticationException("Not able to retrieve user"); // Or use a logger
+        }
+        return null;
+    }
 
     @Override
     public boolean isEmailExists(String email) {

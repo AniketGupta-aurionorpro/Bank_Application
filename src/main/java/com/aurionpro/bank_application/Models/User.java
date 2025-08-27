@@ -55,7 +55,7 @@ private boolean is_deleted;
       this.id = id;
    }
 
-   public int getAccountNumber() {
+   public Integer getAccountNumber() {
       return accountNumber;
    }
 

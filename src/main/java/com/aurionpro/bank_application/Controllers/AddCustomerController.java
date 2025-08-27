@@ -1,7 +1,7 @@
 package com.aurionpro.bank_application.Controllers;
 
 import com.aurionpro.bank_application.Models.User;
-// Import the new service
+
 import com.aurionpro.bank_application.Services.AddCustomerServices;
 import jakarta.annotation.Resource;
 import jakarta.servlet.RequestDispatcher;
@@ -115,7 +115,7 @@ public class AddCustomerController extends HttpServlet {
                 boolean status = addCustomerServices.addCustomer(newUser);
                 if (status) {
                     req.getSession().setAttribute("SUCCESS_MESSAGE", "Customer added successfully.");
-                    resp.sendRedirect(req.getContextPath() + "/adminDashboard");
+                    resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
                     return;
                 } else {
                     errors.put("general", "Failed to create customer. Please try again.");
