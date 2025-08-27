@@ -82,27 +82,33 @@ package com.aurionpro.bank_application.Services;
 //}
 
 
+import com.aurionpro.bank_application.DAO.TransactionDTO;
+import com.aurionpro.bank_application.DAO.TxnDAOImpl;
 import com.aurionpro.bank_application.DAO.UserDAOImpl;
+import com.aurionpro.bank_application.Interfaces.TxnDAO;
 import com.aurionpro.bank_application.Interfaces.UsersDAO;
 import com.aurionpro.bank_application.Models.User;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdminServices {
 
     private final UsersDAO userDAO;
+    private final TxnDAO txnDAO;
 
     public AdminServices(DataSource dataSource) {
         this.userDAO = new UserDAOImpl(dataSource);
+        this.txnDAO = new TxnDAOImpl(dataSource); // Initialize your TxnDAO implementation here if needed
     }
 
     public List<User> getAllCustomers() {
         return userDAO.getUserByRole1("customer");
     }
 
-    // NEW: Get filtered customers based on search query
+
     public List<User> searchCustomers(String query) {
         List<User> allCustomers = getAllCustomers();
         if (query == null || query.trim().isEmpty()) {
@@ -152,10 +158,7 @@ public class AdminServices {
     }
 
     public User getCustomerById(int userId) {
-        // It's better to fetch directly by ID from DAO if available,
-        // rather than filtering all users. Assuming your DAO has getUserById.
-        // If not, this is fine, but less efficient for a large number of users.
-        return userDAO.getUserById(userId); // Assuming getUserById exists in your DAO
+        return userDAO.getUserById(userId);
     }
 
     public boolean updateCustomer(User user) {
@@ -187,4 +190,9 @@ public class AdminServices {
         } while (userDAO.isAccountNumberExists((int) accountNumber)); // Assuming isAccountNumberExists in DAO
         return accountNumber;
     }
+
+    public List<TransactionDTO> getCustomerTransactions(long accountNumber, Map<String, String> filters) {
+        return txnDAO.findFilteredTransactions(accountNumber, filters);
+    }
+
 }

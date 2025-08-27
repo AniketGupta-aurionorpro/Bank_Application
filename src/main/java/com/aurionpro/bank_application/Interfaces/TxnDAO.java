@@ -1,10 +1,12 @@
 package com.aurionpro.bank_application.Interfaces;
 
+import com.aurionpro.bank_application.DAO.TransactionDTO;
 import com.aurionpro.bank_application.Models.Transaction;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface TxnDAO{
 
@@ -31,4 +33,7 @@ public interface TxnDAO{
 
     // 8. Delete transaction
     boolean deleteTransaction(int txnId) throws SQLException;
+
+    List<TransactionDTO> findTransactionsByAccountNumber(long accountNumber);
+    List<TransactionDTO> findFilteredTransactions(long accountNumber, Map<String, String> filters);
 }

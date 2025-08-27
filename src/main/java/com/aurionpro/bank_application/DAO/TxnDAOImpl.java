@@ -9,6 +9,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TxnDAOImpl implements TxnDAO {
 
@@ -184,5 +185,83 @@ public class TxnDAOImpl implements TxnDAO {
         LocalDateTime txnDate = rs.getTimestamp("txn_date").toLocalDateTime();
 
         return new Transaction(txnId, sender, receiverAccount, txnType, amount, details, txnDate);
+    }
+
+    @Override
+    public List<TransactionDTO> findTransactionsByAccountNumber(long accountNumber) {
+        // This method can simply call the filtered one with no filters
+        return findFilteredTransactions(accountNumber, null);
+    }
+
+    @Override
+    public List<TransactionDTO> findFilteredTransactions(long accountNumber, Map<String, String> filters) {
+        List<TransactionDTO> transactions = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        // Base query with a LEFT JOIN to get the receiver's name
+        StringBuilder sql = new StringBuilder(
+                "SELECT t.*, u_receiver.username AS receiver_name " +
+                        "FROM transactions t " +
+                        "LEFT JOIN users u_receiver ON t.receiver_account_number = u_receiver.account_number " +
+                        "WHERE (t.sender_account_number = ? OR t.receiver_account_number = ?)"
+        );
+
+        params.add(accountNumber);
+        params.add(accountNumber);
+
+        // Dynamically add filter conditions
+        if (filters != null && !filters.isEmpty()) {
+            String startDate = filters.get("startDate");
+            if (startDate != null && !startDate.isEmpty()) {
+                sql.append(" AND DATE(t.txn_date) >= ?");
+                params.add(startDate);
+            }
+
+            String endDate = filters.get("endDate");
+            if (endDate != null && !endDate.isEmpty()) {
+                sql.append(" AND DATE(t.txn_date) <= ?");
+                params.add(endDate);
+            }
+
+            String txnType = filters.get("txnType");
+            if (txnType != null && !txnType.isEmpty()) {
+                sql.append(" AND t.type = ?");
+                params.add(txnType);
+            }
+
+            String receiverAccount = filters.get("receiverAccount");
+            if (receiverAccount != null && !receiverAccount.isEmpty()) {
+                sql.append(" AND t.receiver_account_number = ?");
+                params.add(Long.parseLong(receiverAccount));
+            }
+        }
+
+        sql.append(" ORDER BY t.txn_date DESC");
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            // Set parameters for the PreparedStatement
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int txnId = rs.getInt("txn_id");
+                int senderAcc = rs.getInt("sender_account_number");
+                Integer receiverAcc = (Integer) rs.getObject("receiver_account_number");
+                TXN_TYPE type = TXN_TYPE.valueOf(rs.getString("type").toUpperCase());
+                long amount = rs.getLong("amount");
+                String details = rs.getString("details");
+                LocalDateTime txnDate = rs.getTimestamp("txn_date").toLocalDateTime();
+                String receiverName = rs.getString("receiver_name");
+
+                transactions.add(new TransactionDTO(txnId, senderAcc, receiverAcc, type, amount, details, txnDate, receiverName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exceptions properly
+        }
+        return transactions;
     }
 }

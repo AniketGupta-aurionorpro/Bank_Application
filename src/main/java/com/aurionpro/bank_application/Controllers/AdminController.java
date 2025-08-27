@@ -1,5 +1,6 @@
 package com.aurionpro.bank_application.Controllers;
 
+import com.aurionpro.bank_application.DAO.TransactionDTO;
 import com.aurionpro.bank_application.Models.User; // Assuming you have a User model
 import com.aurionpro.bank_application.Services.AdminServices;
 import jakarta.annotation.Resource;
@@ -13,7 +14,9 @@ import jakarta.servlet.http.HttpSession;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(urlPatterns = {"/admin/dashboard", "/admin"})
 public class AdminController extends HttpServlet {
@@ -47,8 +50,7 @@ public class AdminController extends HttpServlet {
 
 
         String action = req.getParameter("action");
-
-        if (action == null) {
+        if (action == null || action.isEmpty()) {
             action = "LIST_CUSTOMERS";
         }
 
@@ -60,30 +62,83 @@ public class AdminController extends HttpServlet {
                 deleteCustomer(req, resp);
                 break;
             case "viewAllTransactions":
-                viewAllTransactions(req, resp);
+                viewAllTransactions(req, resp); // This is for ALL transactions, keep it separate
+                break;
+            case "viewTransactions": // NEW: This is for a single customer's transactions
+                viewCustomerTransactions(req, resp);
+                break;
+            case "searchCustomers":
+                searchCustomers(req, resp);
                 break;
             default:
                 listCustomers(req, resp);
         }
     }
 
-//    private void listCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        // Get customer list from the service
-//        List<User> customerList = adminServices.getAllCustomers();
-//
-//        // Add the list to the REQUEST scope, not the session
-//        req.setAttribute("customerList", customerList);
-//
-//        // Forward to the JSP page
-//        RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
-//        dispatcher.forward(req, resp);
-//    }
-    private void listCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    List<User> customerList = adminServices.getAllCustomers();
-    req.setAttribute("customerList", customerList);
-    RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
-    dispatcher.forward(req, resp);
+    private void viewCustomerTransactions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            int userId = Integer.parseInt(req.getParameter("id"));
+            User customer = adminServices.getCustomerById(userId);
+
+            if (customer == null || customer.getAccountNumber() == 0) {
+                req.getSession().setAttribute("errorMessage", "Customer or account number not found.");
+                resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
+                return;
+            }
+
+            // Collect filter parameters from the request
+            Map<String, String> filters = new HashMap<>();
+            filters.put("startDate", req.getParameter("startDate"));
+            filters.put("endDate", req.getParameter("endDate"));
+            filters.put("txnType", req.getParameter("txnType"));
+            filters.put("receiverAccount", req.getParameter("receiverAccount"));
+
+            // Get transactions using the service
+            List<TransactionDTO> transactionList = adminServices.getCustomerTransactions(customer.getAccountNumber(), filters);
+
+            req.setAttribute("customer", customer);
+            req.setAttribute("transactionList", transactionList);
+
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/CustomerTransactions.jsp");
+            dispatcher.forward(req, resp);
+
+        } catch (NumberFormatException e) {
+            req.getSession().setAttribute("errorMessage", "Invalid customer ID.");
+            resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
+        }
     }
+   private void listCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<User> customerList = adminServices.getAllCustomers();
+        req.setAttribute("customerList", customerList);
+
+        // NEW: Add total customers and total balance to request scope
+        req.setAttribute("totalCustomers", adminServices.getTotalCustomersCount());
+        req.setAttribute("totalBalance", adminServices.getTotalBalance());
+
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
+        dispatcher.forward(req, resp);
+    }
+//    private void listCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//    List<User> customerList = adminServices.getAllCustomers();
+//    req.setAttribute("customerList", customerList);
+//    RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
+//    dispatcher.forward(req, resp);
+//    }
+
+    private void searchCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String query = req.getParameter("query");
+        List<User> customerList = adminServices.searchCustomers(query);
+        req.setAttribute("customerList", customerList);
+        req.setAttribute("currentQuery", query); // To pre-fill search bar after search
+
+        // NEW: Still need total stats for the cards
+        req.setAttribute("totalCustomers", adminServices.getTotalCustomersCount());
+        req.setAttribute("totalBalance", adminServices.getTotalBalance());
+
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
+        dispatcher.forward(req, resp);
+    }
+
 //    private void deleteCustomer(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 //        try {
 //            // Get the user ID from the request parameter
