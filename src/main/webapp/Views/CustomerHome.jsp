@@ -238,11 +238,6 @@
                     <label for="receiverAccount" class="form-label">Receiver's Account Number</label>
                     <input type="number" class="form-control" id="receiverAccount" name="receiverAccount" required>
                 </div>
-                <div class="mb-3">
-                    <label for="receiverName" class="form-label">Receiver's Name</label>
-                    <input type="text" class="form-control" id="receiverName" readonly style="background-color: #e9ecef;">
-                    <div id="receiverError" class="text-danger small mt-1"></div>
-                </div>
                 <!-- FIX: ADDED MISSING AMOUNT AND DETAILS FIELDS -->
                 <div class="mb-3">
                     <label for="transferAmount" class="form-label">Amount</label>
@@ -258,146 +253,15 @@
                     <input type="password" class="form-control" id="transferPassword" name="password" required>
                 </div>
             </div>
-            <div class="modal-footer"><button type="submit" id="transferSubmitBtn" class="btn btn-primary" disabled>Send Money</button></div>
+            <div class="modal-footer"><button type="submit" id="transferSubmitBtn" class="btn btn-primary" >Send Money</button></div>
         </form>
     </div>
 </div>
 </div>
 
-<%--<form id="transferForm" action="${pageContext.request.contextPath}/customer/home" method="POST">--%>
-<%--    <div class="modal-body">--%>
-<%--        <input type="hidden" name="action" value="performTransfer">--%>
-<%--        <input type="hidden" name="userAccountNumber" value="${dashboard.customer.accountNumber}">--%>
-<%--        <!-- The hidden field that will hold the real account number -->--%>
-<%--        <input type="hidden" id="receiverAccountNumberHidden" name="receiverAccount">--%>
 
-<%--        <div class="mb-3">--%>
-<%--            <label for="receiverUsername" class="form-label">Receiver's Username</label>--%>
-<%--            <input type="text" class="form-control" id="receiverUsername" required> <!-- Search by this field -->--%>
-<%--        </div>--%>
-<%--        <div class="mb-3">--%>
-<%--            <label class="form-label">Verified Account</label>--%>
-<%--            <input type="text" class="form-control" id="verifiedAccountInfo" readonly style="background-color: #e9ecef;">--%>
-<%--            <div id="receiverError" class="text-danger small mt-1"></div>--%>
-<%--        </div>--%>
-<%--        <!-- ... amount, details, and password fields ... -->--%>
-<%--    </div>--%>
-<%--    <div class="modal-footer"><button type="submit" id="transferSubmitBtn" class="btn btn-primary" disabled>Send Money</button></div>--%>
-<%--</form>--%>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const contextPath = '${pageContext.request.contextPath}';
-    document.addEventListener('DOMContentLoaded', function() {
-        const receiverAccountInput = document.getElementById('receiverAccount');
-        const receiverNameInput = document.getElementById('receiverName');
-        const receiverErrorDiv = document.getElementById('receiverError');
-        const transferSubmitBtn = document.getElementById('transferSubmitBtn');
 
-        let debounceTimer;
-
-        receiverAccountInput.addEventListener('input', function() {
-            // Clear previous timeout
-            clearTimeout(debounceTimer);
-
-            // Reset state
-            receiverNameInput.value = '';
-            receiverErrorDiv.textContent = '';
-            transferSubmitBtn.disabled = true;
-
-            const accountNumber = this.value;
-
-            // Debounce: wait 500ms after user stops typing
-            debounceTimer = setTimeout(() => {
-                if (accountNumber && accountNumber.length >= 8) { // Basic validation
-                    verifyAccount(accountNumber);
-                }
-            }, 500);
-        });
-
-        async function verifyAccount(accountNumber) {
-            try {
-                // Show a loading state if desired
-                receiverNameInput.value = 'Verifying...';
-
-                const response = await fetch(`${contextPath}/verify-account?accountNumber=${accountNumber}`);
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-
-                if (data.isValid) {
-                    receiverNameInput.value = data.receiverName;
-                    receiverErrorDiv.textContent = '';
-                    transferSubmitBtn.disabled = false; // Enable submit button on success
-                } else {
-                    receiverNameInput.value = '';
-                    receiverErrorDiv.textContent = data.message || 'Account not found.';
-                    transferSubmitBtn.disabled = true;
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                receiverNameInput.value = '';
-                receiverErrorDiv.textContent = 'Error verifying account. Please try again.';
-                transferSubmitBtn.disabled = true;
-            }
-        }
-    });
-</script>
-<%--<script>--%>
-<%--    document.addEventListener('DOMContentLoaded', function() {--%>
-<%--        const receiverUsernameInput = document.getElementById('receiverUsername');--%>
-<%--        const verifiedAccountInfoInput = document.getElementById('verifiedAccountInfo');--%>
-<%--        const receiverErrorDiv = document.getElementById('receiverError');--%>
-<%--        const transferSubmitBtn = document.getElementById('transferSubmitBtn');--%>
-<%--        const hiddenAccountNumberInput = document.getElementById('receiverAccountNumberHidden');--%>
-
-<%--        let debounceTimer;--%>
-
-<%--        receiverUsernameInput.addEventListener('input', function() {--%>
-<%--            clearTimeout(debounceTimer);--%>
-<%--            // Reset state--%>
-<%--            verifiedAccountInfoInput.value = '';--%>
-<%--            receiverErrorDiv.textContent = '';--%>
-<%--            hiddenAccountNumberInput.value = '';--%>
-<%--            transferSubmitBtn.disabled = true;--%>
-
-<%--            const username = this.value;--%>
-
-<%--            debounceTimer = setTimeout(() => {--%>
-<%--                if (username && username.length > 2) {--%>
-<%--                    verifyUser(username);--%>
-<%--                }--%>
-<%--            }, 500);--%>
-<%--        });--%>
-
-<%--        async function verifyUser(username) {--%>
-<%--            verifiedAccountInfoInput.value = 'Verifying...';--%>
-<%--            try {--%>
-<%--                // New URL--%>
-<%--                const response = await fetch(`${contextPath}/lookup-user?username=${encodeURIComponent(username)}`);--%>
-<%--                const data = await response.json();--%>
-
-<%--                if (data.isValid) {--%>
-<%--                    verifiedAccountInfoInput.value = `${data.receiverName} (Acc: ...${String(data.receiverAccount).slice(-4)})`;--%>
-<%--                    hiddenAccountNumberInput.value = data.receiverAccount; // <-- CRITICAL: Populate hidden field--%>
-<%--                    receiverErrorDiv.textContent = '';--%>
-<%--                    transferSubmitBtn.disabled = false;--%>
-<%--                } else {--%>
-<%--                    verifiedAccountInfoInput.value = '';--%>
-<%--                    receiverErrorDiv.textContent = data.message || 'User not found.';--%>
-<%--                    transferSubmitBtn.disabled = true;--%>
-<%--                }--%>
-<%--            } catch (error) {--%>
-<%--                console.error('Fetch error:', error);--%>
-<%--                verifiedAccountInfoInput.value = '';--%>
-<%--                receiverErrorDiv.textContent = 'Error verifying user.';--%>
-<%--                transferSubmitBtn.disabled = true;--%>
-<%--            }--%>
-<%--        }--%>
-<%--    });--%>
-<%--</script>--%>
 </body>
 </html>

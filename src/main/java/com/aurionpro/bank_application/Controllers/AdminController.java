@@ -62,9 +62,9 @@ public class AdminController extends HttpServlet {
                 deleteCustomer(req, resp);
                 break;
             case "viewAllTransactions":
-                viewAllTransactions(req, resp); // This is for ALL transactions, keep it separate
+                viewAllTransactions(req, resp);
                 break;
-            case "viewTransactions": // NEW: This is for a single customer's transactions
+            case "viewTransactions":
                 viewCustomerTransactions(req, resp);
                 break;
             case "searchCustomers":
@@ -86,14 +86,14 @@ public class AdminController extends HttpServlet {
                 return;
             }
 
-            // Collect filter parameters from the request
+
             Map<String, String> filters = new HashMap<>();
             filters.put("startDate", req.getParameter("startDate"));
             filters.put("endDate", req.getParameter("endDate"));
             filters.put("txnType", req.getParameter("txnType"));
             filters.put("receiverAccount", req.getParameter("receiverAccount"));
 
-            // Get transactions using the service
+
             List<TransactionDTO> transactionList = adminServices.getCustomerTransactions(customer.getAccountNumber(), filters);
 
             req.setAttribute("customer", customer);
@@ -111,27 +111,21 @@ public class AdminController extends HttpServlet {
         List<User> customerList = adminServices.getAllCustomers();
         req.setAttribute("customerList", customerList);
 
-        // NEW: Add total customers and total balance to request scope
+
         req.setAttribute("totalCustomers", adminServices.getTotalCustomersCount());
         req.setAttribute("totalBalance", adminServices.getTotalBalance());
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
         dispatcher.forward(req, resp);
     }
-//    private void listCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//    List<User> customerList = adminServices.getAllCustomers();
-//    req.setAttribute("customerList", customerList);
-//    RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AdminDashboard.jsp");
-//    dispatcher.forward(req, resp);
-//    }
 
     private void searchCustomers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String query = req.getParameter("query");
         List<User> customerList = adminServices.searchCustomers(query);
         req.setAttribute("customerList", customerList);
-        req.setAttribute("currentQuery", query); // To pre-fill search bar after search
+        req.setAttribute("currentQuery", query);
 
-        // NEW: Still need total stats for the cards
+
         req.setAttribute("totalCustomers", adminServices.getTotalCustomersCount());
         req.setAttribute("totalBalance", adminServices.getTotalBalance());
 
@@ -139,45 +133,29 @@ public class AdminController extends HttpServlet {
         dispatcher.forward(req, resp);
     }
 
-//    private void deleteCustomer(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-//        try {
-//            // Get the user ID from the request parameter
-//            int userId = Integer.parseInt(req.getParameter("id"));
-//
-//            // Call the service method to perform a soft delete
-//            adminServices.softDeleteCustomer(userId);
-//
-//            // After deleting, redirect back to the main dashboard to show the updated list.
-//            // This is the Post-Redirect-Get (PRG) pattern, which prevents re-deleting on refresh.
-//            resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
-//        } catch (NumberFormatException e) {
-//            // Handle cases where the ID is not a valid number
-//            e.printStackTrace();
-//            resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
-//        }
-//    }
+
     private void deleteCustomer(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     int userId = Integer.parseInt(req.getParameter("id"));
-    // The controller delegates the deletion logic to the service.
+
     adminServices.softDeleteCustomer(userId);
 
     resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
     }
 
     private void viewAllTransactions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Collect filter parameters from the request
+
         Map<String, String> filters = new HashMap<>();
         filters.put("startDate", req.getParameter("startDate"));
         filters.put("endDate", req.getParameter("endDate"));
         filters.put("txnType", req.getParameter("txnType"));
-        filters.put("customerName", req.getParameter("customerName")); // New filter
+        filters.put("customerName", req.getParameter("customerName"));
 
-        // Get all transactions using the service
+
         List<TransactionDTO> transactionList = adminServices.getAllSystemTransactions(filters);
 
         req.setAttribute("transactionList", transactionList);
 
-        RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AllTransactions.jsp"); // Forward to the new JSP
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AllTransactions.jsp");
         dispatcher.forward(req, resp);
     }
 
@@ -185,7 +163,7 @@ public class AdminController extends HttpServlet {
     private void showEditCustomerForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             int userId = Integer.parseInt(req.getParameter("id"));
-            User customer = adminServices.getCustomerById(userId); // You'll need this method in AdminServices
+            User customer = adminServices.getCustomerById(userId);
 
             if (customer == null) {
                 resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=CustomerNotFound");
@@ -193,7 +171,7 @@ public class AdminController extends HttpServlet {
             }
 
             req.setAttribute("customer", customer);
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/EditCustomerForm.jsp"); // Create this JSP
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/EditCustomerForm.jsp");
             dispatcher.forward(req, resp);
 
         } catch (NumberFormatException e) {
@@ -208,16 +186,16 @@ public class AdminController extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action == null) {
-            action = "LIST_CUSTOMERS"; // Default action
+            action = "LIST_CUSTOMERS";
         }
 
         switch (action) {
-            case "update": // New case for updating customer
+            case "update":
                 updateCustomer(request, response);
                 break;
-            // Other POST actions if any, otherwise default to doGet for other actions
+
             default:
-                doGet(request, response); // Or handle other POST requests
+                doGet(request, response);
         }
     }
 
@@ -227,10 +205,10 @@ public class AdminController extends HttpServlet {
             String username = req.getParameter("username");
             String email = req.getParameter("email");
             String phone = req.getParameter("phone");
-            String dob = req.getParameter("dob"); // Assuming DOB is part of your User model
-            String status = req.getParameter("status"); // "active" or "inactive" from toggle
+            String dob = req.getParameter("dob");
+            String status = req.getParameter("status");
 
-            // Retrieve existing user to preserve other fields
+
             User existingUser = adminServices.getCustomerById(userId);
 
             if (existingUser == null) {
@@ -238,23 +216,23 @@ public class AdminController extends HttpServlet {
                 return;
             }
 
-            // Update only the editable fields
+
             existingUser.setUsername(username);
             existingUser.setEmail(email);
             existingUser.setPhone(phone);
-            // existingUser.setDob(LocalDate.parse(dob)); // Uncomment if you add DOB to User model
+
             if (status != null && status.equals("active")){
                 existingUser.setIs_deleted(false);
             }else{
                 existingUser.setIs_deleted(true);
             }
 
-            boolean success = adminServices.updateCustomer(existingUser); // New method in AdminServices
+            boolean success = adminServices.updateCustomer(existingUser);
 
             if (success) {
                 resp.sendRedirect(req.getContextPath() + "/admin/dashboard?message=CustomerUpdated");
             } else {
-                req.setAttribute("customer", existingUser); // Keep data in form for re-display
+                req.setAttribute("customer", existingUser);
                 req.setAttribute("errorMessage", "Failed to update customer.");
                 RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/EditCustomerForm.jsp");
                 dispatcher.forward(req, resp);

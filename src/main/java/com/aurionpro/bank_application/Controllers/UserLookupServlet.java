@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/lookup-user") // New URL
+@WebServlet("/lookup-user")
 public class UserLookupServlet extends HttpServlet {
     @Resource(name = "jdbc/bank_app")
     private DataSource dataSource;
@@ -25,19 +25,19 @@ public class UserLookupServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (dataSource == null) { /* ... same error handling as above ... */ return; }
+        if (dataSource == null) {  return; }
         if (usersDAO == null) { this.usersDAO = new UserDAOImpl(this.dataSource); }
 
         Map<String, Object> responseData = new HashMap<>();
-        String username = req.getParameter("username"); // Changed from accountNumber
+        String username = req.getParameter("username");
 
         try {
-            User receiver = usersDAO.getUserByUsername(username); // Changed method call
+            User receiver = usersDAO.getUserByUsername(username);
 
             if (receiver != null) {
                 responseData.put("isValid", true);
                 responseData.put("receiverName", receiver.getUsername());
-                responseData.put("receiverAccount", receiver.getAccountNumber()); // Also return account number
+                responseData.put("receiverAccount", receiver.getAccountNumber());
             } else {
                 responseData.put("isValid", false);
                 responseData.put("message", "User not found.");

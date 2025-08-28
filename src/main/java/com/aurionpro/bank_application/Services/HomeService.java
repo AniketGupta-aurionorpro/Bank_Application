@@ -10,7 +10,6 @@ import com.aurionpro.bank_application.DAO.TransactionDTO;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,26 +24,22 @@ public class HomeService {
     }
 
     public CustomerDashboardDTO getCustomerDashboardData(String username) {
-        // 1. Get the logged-in customer's details
         User customer = usersDAO.getUserByUsername(username);
         if (customer == null) {
-            return null; // Or throw an exception
+            return null;
         }
 
-        // 2. Fetch their recent transactions (we can add a limit in the DAO later if needed)
-        // For now, it fetches all transactions and the JSP can limit the display
         List<TransactionDTO> transactions = transactionDAO.findTransactionsByAccountNumber(customer.getAccountNumber());
 
-        // 3. Bundle the data into our DTO and return it
         return new CustomerDashboardDTO(customer, transactions);
     }
+
     public List<TransactionDTO> getCustomerTransactions(String username, Map<String, String> filters) {
         User customer = usersDAO.getUserByUsername(username);
         if (customer == null || customer.getAccountNumber() == 0) {
-            return new ArrayList<>(); // Return empty list if user not found
+            return new ArrayList<>();
         }
 
-        // We can reuse the DAO method perfectly here
         return transactionDAO.findFilteredTransactions(customer.getAccountNumber(), filters);
     }
 }

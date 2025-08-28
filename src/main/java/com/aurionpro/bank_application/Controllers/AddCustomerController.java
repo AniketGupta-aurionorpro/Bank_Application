@@ -1,7 +1,6 @@
 package com.aurionpro.bank_application.Controllers;
 
 import com.aurionpro.bank_application.Models.User;
-
 import com.aurionpro.bank_application.Services.AddCustomerServices;
 import jakarta.annotation.Resource;
 import jakarta.servlet.RequestDispatcher;
@@ -20,7 +19,6 @@ import java.util.Map;
 
 @WebServlet("/addCustomer")
 public class AddCustomerController extends HttpServlet {
-
 
     private AddCustomerServices addCustomerServices;
 
@@ -47,7 +45,6 @@ public class AddCustomerController extends HttpServlet {
         String dobString = req.getParameter("dob");
         Map<String, String> errors = new HashMap<>();
 
-
         if (username == null || username.trim().isEmpty()) {
             errors.put("username", "Username is required.");
         } else if (addCustomerServices.isUsernameTaken(username)) {
@@ -62,19 +59,19 @@ public class AddCustomerController extends HttpServlet {
 
         if (email == null || email.trim().isEmpty()) {
             errors.put("email", "Email is required.");
-        }else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             errors.put("email", "Invalid email format.");
-        }else if (addCustomerServices.isEmailTaken(email)) {
+        } else if (addCustomerServices.isEmailTaken(email)) {
             errors.put("email", "This email address is already in use.");
         }
 
         if (phone == null || phone.trim().isEmpty()) {
             errors.put("phone", "Phone number is required.");
-        }else if (phone.length() < 10 || phone.length() > 15) {
+        } else if (phone.length() < 10 || phone.length() > 15) {
             errors.put("phone", "Invalid phone number length.");
-        }else if (!phone.matches("^[0-9]+$")) {
+        } else if (!phone.matches("^[0-9]+$")) {
             errors.put("phone", "Phone number must contain only digits.");
-        }else if (addCustomerServices.isPhoneTaken(phone)) {
+        } else if (addCustomerServices.isPhoneTaken(phone)) {
             errors.put("phone", "This phone number is already in use.");
         }
 
@@ -82,9 +79,8 @@ public class AddCustomerController extends HttpServlet {
             errors.put("dob", "Date of Birth is required.");
         } else {
             try {
-                LocalDate dob = LocalDate.parse(dobString); // Default format is yyyy-MM-dd
+                LocalDate dob = LocalDate.parse(dobString);
                 LocalDate eighteenYearsAgo = LocalDate.now().minusYears(18);
-
                 if (dob.isAfter(eighteenYearsAgo)) {
                     errors.put("dob", "Customer must be at least 18 years old.");
                 }
@@ -97,7 +93,6 @@ public class AddCustomerController extends HttpServlet {
         formData.setUsername(username);
         formData.setEmail(email);
         formData.setPhone(phone);
-//        formData.put("dob", dobString);
 
         if (!errors.isEmpty()) {
             req.setAttribute("ERRORS", errors);
@@ -125,7 +120,6 @@ public class AddCustomerController extends HttpServlet {
                     dispatcher.forward(req, resp);
                     return;
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 errors.put("general", "A server error occurred. Could not create customer.");
