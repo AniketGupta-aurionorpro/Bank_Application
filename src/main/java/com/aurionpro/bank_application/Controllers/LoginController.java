@@ -43,7 +43,7 @@ public class LoginController extends HttpServlet {
                 System.out.println("Admin Logged In Successfully");
                 resp.sendRedirect("admin/dashboard");
             }
-            else if(user.getRole().equals(Roles.CUSTOMER.toString())){
+            else if(user.getRole().equals(Roles.CUSTOMER.toString().toLowerCase())){
                 session.setAttribute("username", user.getUsername());
                 session.setAttribute("role", user.getRole().toLowerCase());
                 session.setMaxInactiveInterval(1800);

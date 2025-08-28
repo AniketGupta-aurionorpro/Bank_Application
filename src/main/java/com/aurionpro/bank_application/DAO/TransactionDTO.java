@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 public class TransactionDTO extends Transaction {
     private String receiverName;
+    private String senderName;
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yyyy, hh:mm a");
 
     // Constructors
@@ -15,9 +16,18 @@ public class TransactionDTO extends Transaction {
         super();
     }
 
+
     public TransactionDTO(int txnId, int senderAccountNumber, Integer receiverAccountNumber,
                           TXN_TYPE type, long amount, String details, LocalDateTime txnDate, String receiverName) {
         super(txnId, senderAccountNumber, receiverAccountNumber, type, amount, details, txnDate);
+        this.receiverName = receiverName;
+    }
+
+    public TransactionDTO(int txnId, int senderAccountNumber, Integer receiverAccountNumber,
+                          TXN_TYPE type, long amount, String details, LocalDateTime txnDate,
+                          String senderName, String receiverName) { // MODIFIED
+        super(txnId, senderAccountNumber, receiverAccountNumber, type, amount, details, txnDate);
+        this.senderName = senderName; // NEW
         this.receiverName = receiverName;
     }
 
@@ -36,4 +46,7 @@ public class TransactionDTO extends Transaction {
         }
         return ""; // Or some default text
     }
+
+    public String getSenderName() { return senderName; } // NEW
+    public void setSenderName(String senderName) { this.senderName = senderName; }
 }

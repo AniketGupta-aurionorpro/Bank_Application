@@ -36,4 +36,5 @@ public interface TxnDAO{
 
     List<TransactionDTO> findTransactionsByAccountNumber(long accountNumber);
     List<TransactionDTO> findFilteredTransactions(long accountNumber, Map<String, String> filters);
+    List<TransactionDTO> findAllFilteredTransactions(Map<String, String> filters);
 }

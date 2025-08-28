@@ -132,11 +132,11 @@ public class UserDAOImpl implements UsersDAO {
     }
 
     @Override
-    public User getUserByAccountNumber(int accountNumber) {
+    public User getUserByAccountNumber(Long accountNumber) {
         String sql = "SELECT * FROM users WHERE account_number = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, accountNumber);
+            preparedStatement.setInt(1, Math.toIntExact(accountNumber));
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return mapRowToUser(resultSet);

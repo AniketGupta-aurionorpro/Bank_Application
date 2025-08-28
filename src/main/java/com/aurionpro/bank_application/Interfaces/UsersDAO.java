@@ -12,7 +12,7 @@ public interface UsersDAO {
     public boolean deleteUser(int userId);
     public boolean createUser(User user);
     public boolean updateUser(User user);
-    public User getUserByAccountNumber(int accountNumber);
+    public User getUserByAccountNumber(Long accountNumber);
     public boolean isUsernameExists(String username);
     public List<User> getUserByRole(String email);
     boolean isEmailExists(String email);

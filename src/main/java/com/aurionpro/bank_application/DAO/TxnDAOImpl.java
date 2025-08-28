@@ -264,4 +264,77 @@ public class TxnDAOImpl implements TxnDAO {
         }
         return transactions;
     }
+
+    @Override
+    public List<TransactionDTO> findAllFilteredTransactions(Map<String, String> filters) {
+        List<TransactionDTO> transactions = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        // Base query with TWO LEFT JOINs to get both sender's and receiver's names
+        StringBuilder sql = new StringBuilder(
+                "SELECT t.*, u_sender.username AS sender_name, u_receiver.username AS receiver_name " +
+                        "FROM transactions t " +
+                        "LEFT JOIN users u_sender ON t.sender_account_number = u_sender.account_number " +
+                        "LEFT JOIN users u_receiver ON t.receiver_account_number = u_receiver.account_number " +
+                        "WHERE 1=1" // Start with a true condition to make appending easy
+        );
+
+        // Dynamically add filter conditions
+        if (filters != null && !filters.isEmpty()) {
+            String startDate = filters.get("startDate");
+            if (startDate != null && !startDate.isEmpty()) {
+                sql.append(" AND DATE(t.txn_date) >= ?");
+                params.add(startDate);
+            }
+
+            String endDate = filters.get("endDate");
+            if (endDate != null && !endDate.isEmpty()) {
+                sql.append(" AND DATE(t.txn_date) <= ?");
+                params.add(endDate);
+            }
+
+            String txnType = filters.get("txnType");
+            if (txnType != null && !txnType.isEmpty()) {
+                sql.append(" AND t.type = ?");
+                params.add(txnType);
+            }
+
+            // NEW: Filter by customer name (sender OR receiver)
+            String customerName = filters.get("customerName");
+            if (customerName != null && !customerName.isEmpty()) {
+                sql.append(" AND (u_sender.username LIKE ? OR u_receiver.username LIKE ?)");
+                String nameQuery = "%" + customerName + "%";
+                params.add(nameQuery);
+                params.add(nameQuery);
+            }
+        }
+
+        sql.append(" ORDER BY t.txn_date DESC");
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int txnId = rs.getInt("txn_id");
+                int senderAcc = rs.getInt("sender_account_number");
+                Integer receiverAcc = (Integer) rs.getObject("receiver_account_number");
+                TXN_TYPE type = TXN_TYPE.valueOf(rs.getString("type").toUpperCase());
+                long amount = rs.getLong("amount");
+                String details = rs.getString("details");
+                LocalDateTime txnDate = rs.getTimestamp("txn_date").toLocalDateTime();
+                String senderName = rs.getString("sender_name"); // NEW
+                String receiverName = rs.getString("receiver_name");
+
+                transactions.add(new TransactionDTO(txnId, senderAcc, receiverAcc, type, amount, details, txnDate, senderName, receiverName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return transactions;
+    }
 }

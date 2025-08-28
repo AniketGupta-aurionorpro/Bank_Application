@@ -13,7 +13,7 @@ private String password;
 private String email;
 private String phone;
 private String role;
-private long balance;
+private Long balance;
 private LocalDateTime created_at;
 private String status;
 private boolean is_deleted;

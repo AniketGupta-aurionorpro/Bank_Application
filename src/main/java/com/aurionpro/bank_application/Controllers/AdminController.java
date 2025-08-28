@@ -165,15 +165,22 @@ public class AdminController extends HttpServlet {
     }
 
     private void viewAllTransactions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // List<Transaction> allTransactions = adminServices.getAllTransactions();
+        // Collect filter parameters from the request
+        Map<String, String> filters = new HashMap<>();
+        filters.put("startDate", req.getParameter("startDate"));
+        filters.put("endDate", req.getParameter("endDate"));
+        filters.put("txnType", req.getParameter("txnType"));
+        filters.put("customerName", req.getParameter("customerName")); // New filter
 
-        // req.setAttribute("transactionList", allTransactions);
+        // Get all transactions using the service
+        List<TransactionDTO> transactionList = adminServices.getAllSystemTransactions(filters);
 
-        // RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AllTransactions.jsp");
-        // dispatcher.forward(req, resp);
+        req.setAttribute("transactionList", transactionList);
 
-//        resp.getWriter().println("<h1>Page for 'View All Transactions' is under construction.</h1>");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/Views/AllTransactions.jsp"); // Forward to the new JSP
+        dispatcher.forward(req, resp);
     }
+
 
     private void showEditCustomerForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {

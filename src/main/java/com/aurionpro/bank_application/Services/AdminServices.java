@@ -195,4 +195,8 @@ public class AdminServices {
         return txnDAO.findFilteredTransactions(accountNumber, filters);
     }
 
+    public List<TransactionDTO> getAllSystemTransactions(Map<String, String> filters) {
+        return txnDAO.findAllFilteredTransactions(filters);
+    }
+
 }
